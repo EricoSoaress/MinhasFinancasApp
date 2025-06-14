@@ -16,18 +16,21 @@ import com.erico.minhasfinancasapp.data.UserPreferencesRepository
 import com.erico.minhasfinancasapp.ui.home.HomeScreen
 import com.erico.minhasfinancasapp.ui.login.LoginScreen
 
+// Uma constante privada para representar nosso estado de carregamento.
+private const val STATE_LOADING = "state_loading"
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val userPreferencesRepository = UserPreferencesRepository(context)
 
-    // Observa o token salvo no DataStore. O valor inicial é 'null' enquanto carrega.
-    val authToken by userPreferencesRepository.authToken.collectAsState(initial = null)
+    // Usamos nossa constante como o valor inicial.
+    // O 'authToken' agora será a nossa constante, o token real, ou nulo/vazio.
+    val authToken by userPreferencesRepository.authToken.collectAsState(initial = STATE_LOADING)
 
-    // A tela de carregamento só será exibida enquanto authToken for nulo
-    if (authToken == null) {
-        // Por enquanto, usamos um simples indicador de progresso centralizado.
+    // A lógica agora verifica explicitamente pelo estado de carregamento.
+    if (authToken == STATE_LOADING) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -35,12 +38,12 @@ fun AppNavigation() {
             CircularProgressIndicator()
         }
     } else {
-        // QUANDO o authToken for carregado (mesmo que seja uma string vazia),
-        // decidimos a rota inicial e mostramos o NavHost.
-        val startDestination = if (authToken!!.isNotBlank()) {
-            "home" // Se tem token, começa na home
+        // Quando o carregamento termina, o authToken é diferente da nossa constante.
+        // Agora, podemos verificar se ele é válido (não nulo e não em branco).
+        val startDestination = if (authToken?.isNotBlank() == true) {
+            "home"
         } else {
-            "login" // Se não tem, começa no login
+            "login"
         }
 
         NavHost(navController = navController, startDestination = startDestination) {
