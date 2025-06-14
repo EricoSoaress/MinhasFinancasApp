@@ -1,22 +1,26 @@
 package com.erico.minhasfinancasapp.ui.login
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.erico.minhasfinancasapp.data.UserPreferencesRepository
 import com.erico.minhasfinancasapp.data.remote.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+// Altere ViewModel para AndroidViewModel e adicione 'application' ao construtor
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     val email = MutableStateFlow("")
     val password = MutableStateFlow("")
 
-    // Estado privado para controlar o sucesso do login
     private val _loginSuccess = MutableStateFlow(false)
-    // Estado público que a UI pode observar
     val loginSuccess = _loginSuccess.asStateFlow()
+
+    // Cria uma instância do nosso gerenciador de preferências
+    private val userPreferencesRepository = UserPreferencesRepository(application)
 
     fun login() {
         viewModelScope.launch {
@@ -27,9 +31,12 @@ class LoginViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     val token = response.body()?.get("access_token")
-                    Log.d("LoginViewModel", "Login com sucesso! Token: $token")
-                    // AVISA A UI QUE O LOGIN DEU CERTO!
-                    _loginSuccess.value = true
+                    if (token != null) {
+                        // SALVA O TOKEN AQUI!
+                        userPreferencesRepository.saveAuthToken(token)
+                        Log.d("LoginViewModel", "Login e token salvo com sucesso!")
+                        _loginSuccess.value = true
+                    }
                 } else {
                     Log.e("LoginViewModel", "Falha no login: ${response.errorBody()?.string()}")
                 }
@@ -39,7 +46,6 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    // Função para resetar o estado após a navegação ter ocorrido
     fun resetLoginStatus() {
         _loginSuccess.value = false
     }

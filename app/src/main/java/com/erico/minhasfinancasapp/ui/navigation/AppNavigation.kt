@@ -1,25 +1,55 @@
-// ui/navigation/AppNavigation.kt
 package com.erico.minhasfinancasapp.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.erico.minhasfinancasapp.data.UserPreferencesRepository
+import com.erico.minhasfinancasapp.ui.home.HomeScreen
 import com.erico.minhasfinancasapp.ui.login.LoginScreen
-import com.erico.minhasfinancasapp.ui.home.HomeScreen // Teremos um erro aqui, já vamos criar
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController() // O controlador de navegação
+    val navController = rememberNavController()
+    val context = LocalContext.current
+    val userPreferencesRepository = UserPreferencesRepository(context)
 
-    NavHost(navController = navController, startDestination = "login") {
-        // Define a rota "login" que mostra a nossa LoginScreen
-        composable("login") {
-            LoginScreen(navController = navController)
+    // Observa o token salvo no DataStore. O valor inicial é 'null' enquanto carrega.
+    val authToken by userPreferencesRepository.authToken.collectAsState(initial = null)
+
+    // A tela de carregamento só será exibida enquanto authToken for nulo
+    if (authToken == null) {
+        // Por enquanto, usamos um simples indicador de progresso centralizado.
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
         }
-        // Define a rota "home" para a tela principal
-        composable("home") {
-            HomeScreen()
+    } else {
+        // QUANDO o authToken for carregado (mesmo que seja uma string vazia),
+        // decidimos a rota inicial e mostramos o NavHost.
+        val startDestination = if (authToken!!.isNotBlank()) {
+            "home" // Se tem token, começa na home
+        } else {
+            "login" // Se não tem, começa no login
+        }
+
+        NavHost(navController = navController, startDestination = startDestination) {
+            composable("login") {
+                LoginScreen(navController = navController)
+            }
+            composable("home") {
+                HomeScreen()
+            }
         }
     }
 }
