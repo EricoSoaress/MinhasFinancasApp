@@ -1,10 +1,12 @@
 package com.erico.minhasfinancasapp.data.remote
 
-import com.erico.minhasfinancasapp.data.model.Transacao // Importe o novo modelo
+import com.erico.minhasfinancasapp.data.model.NovaTransacao
+import com.erico.minhasfinancasapp.data.model.Transacao
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET // Importe o GET
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
@@ -19,4 +21,8 @@ interface ApiService {
     // ADICIONE ESTE NOVO ENDPOINT
     @GET("transacoes")
     suspend fun getTransacoes(): Response<List<Transacao>>
+
+    @POST("transacoes")
+    suspend fun criarTransacao(@Body novaTransacao: NovaTransacao): Response<Transacao>
+
 }

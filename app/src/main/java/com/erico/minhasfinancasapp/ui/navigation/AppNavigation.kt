@@ -15,6 +15,8 @@ import androidx.navigation.compose.rememberNavController
 import com.erico.minhasfinancasapp.data.UserPreferencesRepository
 import com.erico.minhasfinancasapp.ui.home.HomeScreen
 import com.erico.minhasfinancasapp.ui.login.LoginScreen
+import com.erico.minhasfinancasapp.ui.transaction.AddTransactionScreen
+
 
 // Uma constante privada para representar nosso estado de carregamento.
 private const val STATE_LOADING = "state_loading"
@@ -53,6 +55,11 @@ fun AppNavigation() {
             composable("home") {
                 HomeScreen(navController = navController)
             }
-        }
+            composable("add_transaction") {
+                AddTransactionScreen(navController = navController)
+         }
+
+     }
+
     }
 }

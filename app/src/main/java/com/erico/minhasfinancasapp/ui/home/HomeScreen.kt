@@ -1,25 +1,13 @@
 package com.erico.minhasfinancasapp.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -29,6 +17,7 @@ import com.erico.minhasfinancasapp.data.model.Transacao
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.runtime.livedata.observeAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +37,19 @@ fun HomeScreen(
         }
     }
 
+    // NOVO CÓDIGO: Ouve por resultados da tela anterior
+    val novaTransacaoAdicionada = navController.currentBackStackEntry
+        ?.savedStateHandle?.getLiveData<Boolean>("nova_transacao_adicionada")
+        ?.observeAsState()
+
+    LaunchedEffect(key1 = novaTransacaoAdicionada?.value) {
+        if (novaTransacaoAdicionada?.value == true) {
+            homeViewModel.carregarTransacoes() // Recarrega a lista
+            // Limpa o estado para não recarregar de novo sem necessidade
+            navController.currentBackStackEntry?.savedStateHandle?.set("nova_transacao_adicionada", false)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -61,6 +63,20 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    // Navega para a nova rota que criamos
+                    navController.navigate("add_transaction")
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Adicionar Transação"
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
@@ -72,6 +88,7 @@ fun HomeScreen(
     }
 }
 
+// O resto do arquivo continua igual...
 @Composable
 fun TransacaoItem(transacao: Transacao) {
     val corValor = if (transacao.tipo == "receita") Color(0xFF2E7D32) else Color.Red
