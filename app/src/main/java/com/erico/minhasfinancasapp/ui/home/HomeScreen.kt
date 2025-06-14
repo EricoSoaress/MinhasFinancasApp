@@ -16,26 +16,45 @@ import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavController
 
-// ADICIONE ESTA ANOTAÇÃO AQUI
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavController, // Adicione o NavController como parâmetro
+    homeViewModel: HomeViewModel = viewModel()
+) {
     val transacoes by homeViewModel.transacoes.collectAsState()
+    val logoutComplete by homeViewModel.logoutComplete.collectAsState()
+
+    // Observa o estado de logout. Quando for 'true', navega para o login.
+    if (logoutComplete) {
+        LaunchedEffect(key1 = Unit) {
+            navController.navigate("login") {
+                popUpTo(0) // Limpa toda a pilha de navegação
+            }
+            homeViewModel.onLogoutComplete() // Reseta o estado
+        }
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Minhas Finanças") })
-        }
-    ) { paddingValues ->
-        LazyColumn(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
-            items(transacoes) { transacao ->
-                TransacaoItem(transacao = transacao)
-                Divider()
-            }
-        }
-    }
-}
+            TopAppBar(
+                title = { Text("Minhas Finanças") },
+                // NOVO BLOCO DE AÇÕES
+                actions = {
+                    IconButton(onClick = { homeViewModel.logout() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Sair"
+                        )
+                    }
+                }
+            )
+
 
 @Composable
 fun TransacaoItem(transacao: Transacao) {

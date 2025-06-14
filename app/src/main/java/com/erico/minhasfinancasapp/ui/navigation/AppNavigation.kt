@@ -51,7 +51,7 @@ fun AppNavigation() {
                 LoginScreen(navController = navController)
             }
             composable("home") {
-                HomeScreen()
+                HomeScreen(navController = navController)
             }
         }
     }
