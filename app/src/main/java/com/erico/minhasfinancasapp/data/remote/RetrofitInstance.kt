@@ -9,12 +9,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-// O nome do objeto permanece o mesmo
+
 object RetrofitInstance {
 
-    private const val BASE_URL = "http://10.0.0.119:8000/" // Use o seu IP real
+    private const val BASE_URL = "http://10.0.0.119:8000/"
 
-    // A MUDANÇA ESTÁ AQUI: Criamos uma função que constrói e retorna o Retrofit
+
     fun getRetrofitInstance(context: Context): Retrofit {
 
         val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -36,7 +36,7 @@ object RetrofitInstance {
     }
 }
 
-// O Interceptor continua aqui
+
 class AuthInterceptor(private val context: Context) : okhttp3.Interceptor {
     private val userPreferencesRepository = UserPreferencesRepository(context)
 

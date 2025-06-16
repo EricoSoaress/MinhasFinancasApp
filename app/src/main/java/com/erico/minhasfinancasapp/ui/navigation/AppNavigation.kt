@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/navigation/AppNavigation.kt
 
 package com.erico.minhasfinancasapp.ui.navigation
 
@@ -16,10 +15,10 @@ import com.erico.minhasfinancasapp.ui.transaction.TransactionScreen
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // A rota inicial agora é sempre a "splash", que é simples e não causa loops.
+
     NavHost(navController = navController, startDestination = "splash") {
 
-        // --- ROTA DA TELA DE CARREGAMENTO (SPLASH) ---
+
         composable("splash") {
             SplashScreen(navController = navController)
         }

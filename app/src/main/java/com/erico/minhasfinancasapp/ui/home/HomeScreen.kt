@@ -1,10 +1,9 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/home/HomeScreen.kt
 
 package com.erico.minhasfinancasapp.ui.home
 
+
+import android.widget.Toast
 import androidx.compose.foundation.background
-import com.erico.minhasfinancasapp.ui.theme.GreenPrimary
-import com.erico.minhasfinancasapp.ui.theme.GreenSecondary
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,26 +11,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.erico.minhasfinancasapp.data.model.Transacao
+import com.erico.minhasfinancasapp.ui.theme.GreenPrimary
+import com.erico.minhasfinancasapp.ui.theme.GreenSecondary
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -43,16 +45,23 @@ fun HomeScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = viewModel()
 ) {
-    // ... (toda a lógica de 'val transacoes', 'LaunchedEffect', etc., continua a mesma)
-    val transacoes by homeViewModel.transacoes.collectAsState()
+
+    val transacoesFiltradas by homeViewModel.transacoesFiltradas.collectAsState()
+    val listaCompleta by homeViewModel.listaCompleta.collectAsState()
+    val filtroAtual by homeViewModel.filtroAtual.collectAsState()
     val logoutComplete by homeViewModel.logoutComplete.collectAsState()
     val transacaoParaDeletar by homeViewModel.transacaoParaDeletar.collectAsState()
 
+
+    val context = LocalContext.current
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    val drawerWidth = configuration.screenWidthDp.dp * 0.75f
+
     LaunchedEffect(logoutComplete) {
         if (logoutComplete) {
-            navController.navigate("login") {
-                popUpTo("home") { inclusive = true }
-            }
+            navController.navigate("login") { popUpTo("home") { inclusive = true } }
             homeViewModel.onLogoutComplete()
         }
     }
@@ -77,68 +86,138 @@ fun HomeScreen(
         )
     }
 
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Minhas Finanças") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent, // Deixamos transparente para o gradiente passar por baixo
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                actions = {
-                    IconButton(onClick = { homeViewModel.logout() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Sair")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("transaction_screen/-1") }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Adicionar Transação")
+                Spacer(modifier = Modifier.height(12.dp))
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Início") },
+                    label = { Text("Início") },
+                    selected = true,
+                    onClick = { scope.launch { drawerState.close() } },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Relatórios") },
+                    label = { Text("Relatórios") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        Toast.makeText(context, "Funcionalidade em desenvolvimento!", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Category, contentDescription = "Categorias") },
+                    label = { Text("Categorias") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        Toast.makeText(context, "Funcionalidade em desenvolvimento!", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                Divider(modifier = Modifier.padding(vertical = 12.dp))
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Sair") },
+                    label = { Text("Sair") },
+                    selected = false,
+                    onClick = { homeViewModel.logout() },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
             }
-        },
-        // A cor do container do Scaffold também deve ser transparente
-        containerColor = Color.Transparent
-    ) { paddingValues ->
-        // A MUDANÇA PRINCIPAL ESTÁ AQUI: O MODIFICADOR .background()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                // Aplicamos o gradiente a toda a coluna
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
-                            MaterialTheme.colorScheme.background,
-                            MaterialTheme.colorScheme.background
+        }
+    ) {
+        Scaffold(
+            topBar = {
+
+                TopAppBar(
+                    title = { Text("Minhas Finanças") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Abrir Menu")
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                // ... (FloatingActionButton continua o mesmo)
+                FloatingActionButton(onClick = { navController.navigate("transaction_screen/-1") }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Adicionar Transação")
+                }
+            },
+            containerColor = Color.Transparent
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.background
+                            )
                         )
                     )
-                )
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            SaldoGeralCard(transacoes)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Transações Recentes", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
             ) {
-                items(transacoes, key = { it.id }) { transacao ->
-                    TransacaoItem(
-                        transacao = transacao,
-                        onDeleteClick = { homeViewModel.onDeletarClicked(transacao) },
-                        onItemClick = { navController.navigate("transaction_screen/${transacao.id}") }
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
+                SaldoGeralCard(listaCompleta)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val filtros = listOf("Recente", "Receita", "Despesa")
+                    filtros.forEach { filtro ->
+                        FilterChip(
+                            selected = (filtro == filtroAtual),
+                            onClick = { homeViewModel.selecionarFiltro(filtro) },
+                            label = { Text(filtro) },
+                            leadingIcon = if (filtro == filtroAtual) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Filled.Done,
+                                        contentDescription = "Filtro selecionado",
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
+                            } else {
+                                null
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Transações", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(transacoesFiltradas, key = { it.id }) { transacao ->
+                        TransacaoItem(
+                            transacao = transacao,
+                            onDeleteClick = { homeViewModel.onDeletarClicked(transacao) },
+                            onItemClick = { navController.navigate("transaction_screen/${transacao.id}") }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-// ... (O código para SaldoGeralCard e TransacaoItem pode continuar o mesmo da última versão)
 @Composable
 fun SaldoGeralCard(transacoes: List<Transacao>) {
     val saldo = transacoes.fold(BigDecimal.ZERO) { acc, transacao ->
@@ -149,7 +228,7 @@ fun SaldoGeralCard(transacoes: List<Transacao>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Usando a cor de superfície do tema
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Saldo Geral", style = MaterialTheme.typography.titleMedium)
@@ -184,7 +263,7 @@ fun TransacaoItem(
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onItemClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // Removemos a elevação para um look mais "flat"
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(

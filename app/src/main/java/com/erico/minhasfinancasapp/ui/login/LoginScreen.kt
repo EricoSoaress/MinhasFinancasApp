@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/login/LoginScreen.kt
 
 package com.erico.minhasfinancasapp.ui.login
 
@@ -20,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.erico.minhasfinancasapp.ui.theme.GreenPrimary
+
 
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
@@ -41,7 +42,10 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         }
     }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFF121212)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,40 +53,53 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 1. Ícone/Logo do App
             Icon(
                 imageVector = Icons.Default.AttachMoney,
                 contentDescription = "Logo Finanças",
                 modifier = Modifier.size(100.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = GreenPrimary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Minhas Finanças",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
             )
 
             Text(
                 text = "Faça login para continuar",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // 2. Campo de E-mail
+
+            val textFieldColors = TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                cursorColor = GreenPrimary,
+                focusedIndicatorColor = GreenPrimary,
+                unfocusedIndicatorColor = Color.Gray,
+                focusedLabelColor = GreenPrimary,
+                unfocusedLabelColor = Color.Gray,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            )
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { loginViewModel.email.value = it },
                 label = { Text("E-mail") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                colors = textFieldColors
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. Campo de Senha com Ícone de Visibilidade
             OutlinedTextField(
                 value = password,
                 onValueChange = { loginViewModel.password.value = it },
@@ -92,39 +109,33 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    val image = if (passwordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-
+                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, "Mostrar/Ocultar senha")
+                        Icon(imageVector = image, "Mostrar/Ocultar senha", tint = Color.Gray)
                     }
-                }
+                },
+                colors = textFieldColors
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 4. Exibição da Mensagem de Erro
             if (errorMessage != null) {
                 Text(
                     text = errorMessage!!,
-                    color = Color.Red,
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-
-            // 5. Botão de Login com Estado de Carregamento
             Button(
                 onClick = { loginViewModel.login() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = !isLoading // Botão fica desabilitado enquanto carrega
-            )
-
-            {
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
+            ) {
                 if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
@@ -137,10 +148,8 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
             Spacer(modifier = Modifier.height(16.dp))
             TextButton(onClick = { navController.navigate("register") }) {
-                Text("Não tem uma conta? Cadastre-se")
+                Text("Não tem uma conta? Cadastre-se", color = GreenPrimary)
             }
-
         }
-
     }
 }

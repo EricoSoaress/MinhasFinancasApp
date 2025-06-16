@@ -19,8 +19,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val apiService: ApiService = RetrofitInstance.getRetrofitInstance(application).create(ApiService::class.java)
     private val userPreferencesRepository = UserPreferencesRepository(application)
 
-    private val _transacoes = MutableStateFlow<List<Transacao>>(emptyList())
-    val transacoes = _transacoes.asStateFlow()
+    private var listaOriginal: List<Transacao> = emptyList()
+
+    private val _filtroAtual = MutableStateFlow("Recente")
+    val filtroAtual = _filtroAtual.asStateFlow()
+
+    private val _transacoesFiltradas = MutableStateFlow<List<Transacao>>(emptyList())
+    val transacoesFiltradas = _transacoesFiltradas.asStateFlow()
+
+    private val _listaCompleta = MutableStateFlow<List<Transacao>>(emptyList())
+    val listaCompleta = _listaCompleta.asStateFlow()
 
     private val _logoutComplete = MutableStateFlow(false)
     val logoutComplete = _logoutComplete.asStateFlow()
@@ -33,7 +41,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             if (!token.isNullOrBlank()) {
                 carregarTransacoes()
             } else {
-                _transacoes.value = emptyList()
+                listaOriginal = emptyList()
+                _transacoesFiltradas.value = emptyList()
+                _listaCompleta.value = emptyList()
             }
         }.launchIn(viewModelScope)
     }
@@ -43,7 +53,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = apiService.getTransacoes()
                 if (response.isSuccessful) {
-                    _transacoes.value = response.body() ?: emptyList()
+                    listaOriginal = response.body() ?: emptyList()
+                    _listaCompleta.value = listaOriginal
+                    aplicarFiltro()
                 } else {
                     Log.e("HomeViewModel", "Erro ao buscar transações: ${response.code()}")
                 }
@@ -51,6 +63,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 Log.e("HomeViewModel", "Falha na conexão: ${e.message}")
             }
         }
+    }
+
+    fun selecionarFiltro(filtro: String) {
+        _filtroAtual.value = filtro
+        aplicarFiltro()
+    }
+
+    private fun aplicarFiltro() {
+        val listaFiltrada = when (_filtroAtual.value) {
+            "Despesa" -> listaOriginal.filter { it.tipo.equals("despesa", ignoreCase = true) }
+            "Receita" -> listaOriginal.filter { it.tipo.equals("receita", ignoreCase = true) }
+            else -> listaOriginal
+        }
+        _transacoesFiltradas.value = listaFiltrada.sortedByDescending { it.data }
     }
 
     fun onDeletarClicked(transacao: Transacao) {

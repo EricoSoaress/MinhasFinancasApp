@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/transaction/TransactionScreen.kt
 
 package com.erico.minhasfinancasapp.ui.transaction
 
@@ -21,7 +20,6 @@ fun TransactionScreen(
     transactionId: Int,
     transactionViewModel: TransactionViewModel = viewModel()
 ) {
-    // Coleta dos estados (State) a partir do ViewModel
     val descricao by transactionViewModel.descricao.collectAsState()
     val valor by transactionViewModel.valor.collectAsState()
     val tipo by transactionViewModel.tipo.collectAsState()
@@ -57,11 +55,10 @@ fun TransactionScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Se estiver carregando, mostra um indicador de progresso no centro.
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
-                // Se não, mostra o formulário.
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()

@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/register/RegisterViewModel.kt
 
 package com.erico.minhasfinancasapp.ui.register
 
@@ -17,7 +16,6 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
     private val apiService: ApiService = RetrofitInstance.getRetrofitInstance(application).create(ApiService::class.java)
 
-    // --- NOVO CAMPO ADICIONADO ---
     val nome = MutableStateFlow("")
     val email = MutableStateFlow("")
     val password = MutableStateFlow("")
@@ -57,7 +55,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                // --- OBJETO ATUALIZADO COM O NOME ---
+
                 val novoUsuario = NovoUsuario(
                     nome = nome.value,
                     email = email.value,

@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/login/LoginViewModel.kt
 
 package com.erico.minhasfinancasapp.ui.login
 
@@ -18,11 +17,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val apiService: ApiService = RetrofitInstance.getRetrofitInstance(application).create(ApiService::class.java)
     private val userPreferencesRepository = UserPreferencesRepository(application)
 
-    // Estados para os campos do formulário
+
     val email = MutableStateFlow("")
     val password = MutableStateFlow("")
 
-    // Novos estados para controlar a UI
+
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess = _loginSuccess.asStateFlow()
 
@@ -33,12 +32,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     val errorMessage = _errorMessage.asStateFlow()
 
     fun login() {
-        // Ignora cliques múltiplos se já estiver carregando
+
         if (_isLoading.value) return
 
         viewModelScope.launch {
             _isLoading.value = true
-            _errorMessage.value = null // Limpa erros antigos
+            _errorMessage.value = null
             try {
                 val response = apiService.login(
                     email = email.value,
@@ -51,7 +50,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         _loginSuccess.value = true
                     }
                 } else {
-                    // Define a mensagem de erro para ser exibida na tela
+
                     _errorMessage.value = "E-mail ou senha incorretos."
                     Log.e("LoginViewModel", "Falha no login: ${response.errorBody()?.string()}")
                 }

@@ -1,5 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/register/RegisterScreen.kt
-
 package com.erico.minhasfinancasapp.ui.register
 
 import android.widget.Toast
@@ -25,24 +23,17 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel = viewModel()) {
-    // --- COLETA DO NOVO ESTADO 'NOME' ---
-    val nome by registerViewModel.nome.collectAsState()
-    val email by registerViewModel.email.collectAsState()
-    val password by registerViewModel.password.collectAsState()
-    val confirmPassword by registerViewModel.confirmPassword.collectAsState()
-    val isLoading by registerViewModel.isLoading.collectAsState()
-    val errorMessage by registerViewModel.errorMessage.collectAsState()
+fun RegisterScreen(
+    navController: NavController,
+    registerViewModel: RegisterViewModel = viewModel()
+) {
     val registrationSuccess by registerViewModel.registrationSuccess.collectAsState()
-
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     if (registrationSuccess) {
         LaunchedEffect(Unit) {
             Toast.makeText(context, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-            navController.popBackStack() // Volta para a tela de login
+            navController.popBackStack()
         }
     }
 
@@ -58,42 +49,116 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // --- NOVO CAMPO DE TEXTO PARA O NOME ---
-            OutlinedTextField(
-                value = nome,
-                onValueChange = { registerViewModel.nome.value = it },
-                label = { Text("Nome Completo") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+        RegisterForm(
+            modifier = Modifier.padding(paddingValues),
+            registerViewModel = registerViewModel
+        )
+    }
+}
 
-            OutlinedTextField(value = email, onValueChange = { registerViewModel.email.value = it }, label = { Text("E-mail") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), singleLine = true)
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = password, onValueChange = { registerViewModel.password.value = it }, label = { Text("Senha (mín. 6 caracteres)") }, modifier = Modifier.fillMaxWidth(), visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, null) }
-            }, singleLine = true)
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = confirmPassword, onValueChange = { registerViewModel.confirmPassword.value = it }, label = { Text("Confirmar Senha") }, modifier = Modifier.fillMaxWidth(), visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), trailingIcon = {
-                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) { Icon(imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, null) }
-            }, singleLine = true)
-            Spacer(modifier = Modifier.height(24.dp))
-            if (errorMessage != null) {
-                Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            Button(onClick = { registerViewModel.register() }, modifier = Modifier.fillMaxWidth().height(50.dp), enabled = !isLoading) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary) else Text("Cadastrar")
+@Composable
+private fun RegisterForm(
+    modifier: Modifier = Modifier,
+    registerViewModel: RegisterViewModel
+) {
+    val nome by registerViewModel.nome.collectAsState()
+    val email by registerViewModel.email.collectAsState()
+    val password by registerViewModel.password.collectAsState()
+    val confirmPassword by registerViewModel.confirmPassword.collectAsState()
+    val isLoading by registerViewModel.isLoading.collectAsState()
+    val errorMessage by registerViewModel.errorMessage.collectAsState()
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = nome,
+            onValueChange = { registerViewModel.nome.value = it },
+            label = { Text("Nome Completo") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { registerViewModel.email.value = it },
+            label = { Text("E-mail") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PasswordTextField(
+            label = "Senha (mín. 6 caracteres)",
+            password = password,
+            onPasswordChange = { registerViewModel.password.value = it }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PasswordTextField(
+            label = "Confirmar Senha",
+            password = confirmPassword,
+            onPasswordChange = { registerViewModel.confirmPassword.value = it }
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Button(
+            onClick = { registerViewModel.register() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            enabled = !isLoading
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Cadastrar")
             }
         }
     }
+}
+
+@Composable
+private fun PasswordTextField(
+    label: String,
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        trailingIcon = {
+            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+            val description = if (passwordVisible) "Ocultar senha" else "Mostrar senha"
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(imageVector = image, contentDescription = description)
+            }
+        }
+    )
 }

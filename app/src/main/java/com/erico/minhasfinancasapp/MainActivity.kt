@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 
-// O import correto que precisamos agora
 import com.erico.minhasfinancasapp.ui.navigation.AppNavigation
 import com.erico.minhasfinancasapp.ui.theme.MinhasFinancasAppTheme
 
@@ -23,7 +22,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // A chamada correta é para o AppNavigation, e não mais para o LoginScreen
+
                     AppNavigation()
                 }
             }

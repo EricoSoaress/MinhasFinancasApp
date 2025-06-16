@@ -18,25 +18,19 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     private val apiService: ApiService = RetrofitInstance.getRetrofitInstance(application).create(ApiService::class.java)
 
-    // Estados para os campos do formulário
     val descricao = MutableStateFlow("")
     val valor = MutableStateFlow("")
     val tipo = MutableStateFlow("despesa")
     private var transacaoId: Int? = null
 
-    // Estados para controlar o fluxo da UI
     private val _saveSuccess = MutableStateFlow(false)
     val saveSuccess = _saveSuccess.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    /**
-     * Carrega os dados de uma transação existente ou prepara o formulário para uma nova.
-     * @param id O ID da transação a ser editada. Se for -1, entra em modo de criação.
-     */
+
     fun carregarTransacao(id: Int) {
-        // Se for uma nova transação (ID = -1), garantimos que os campos estejam limpos.
         if (id == -1) {
             descricao.value = ""
             valor.value = ""
@@ -45,17 +39,16 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
             return
         }
 
-        // Se for edição, buscamos os dados na API.
+
         transacaoId = id
         viewModelScope.launch {
-            _isLoading.value = true // Inicia o carregamento
+            _isLoading.value = true
             try {
                 val response = apiService.getTransacaoPorId(id)
                 if (response.isSuccessful) {
-                    // Se a API responder com sucesso, preenchemos os campos.
                     response.body()?.let { transacao ->
                         descricao.value = transacao.descricao
-                        valor.value = transacao.valor.toPlainString().replace(".", ",") // Formata para o padrão brasileiro
+                        valor.value = transacao.valor.toPlainString().replace(".", ",")
                         tipo.value = transacao.tipo
                     }
                 } else {
@@ -69,13 +62,9 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    /**
-     * Salva a transação, seja criando uma nova ou atualizando uma existente.
-     */
     fun salvarTransacao() {
         viewModelScope.launch {
             try {
-                // Validação simples para não salvar dados em branco
                 if (descricao.value.isBlank() || valor.value.isBlank()) return@launch
 
                 val novaTransacao = NovaTransacao(
@@ -84,7 +73,6 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
                     tipo = tipo.value
                 )
 
-                // Decide se deve chamar a API de criação ou de atualização
                 val response = if (transacaoId == null) {
                     apiService.criarTransacao(novaTransacao)
                 } else {

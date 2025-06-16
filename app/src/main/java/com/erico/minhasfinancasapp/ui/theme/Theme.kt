@@ -1,4 +1,3 @@
-// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/theme/Theme.kt
 
 package com.erico.minhasfinancasapp.ui.theme
 
@@ -46,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun MinhasFinancasAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
