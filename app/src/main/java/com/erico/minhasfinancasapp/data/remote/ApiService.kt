@@ -2,6 +2,7 @@ package com.erico.minhasfinancasapp.data.remote
 
 import com.erico.minhasfinancasapp.data.model.NovaTransacao
 import com.erico.minhasfinancasapp.data.model.Transacao
+import com.erico.minhasfinancasapp.data.model.NovoUsuario
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -20,8 +21,6 @@ interface ApiService {
     @POST("transacoes")
     suspend fun criarTransacao(@Body novaTransacao: NovaTransacao): Response<Transacao>
 
-    // --- NOVOS ENDPOINTS ---
-
     @GET("transacoes/{id}")
     suspend fun getTransacaoPorId(@Path("id") id: Int): Response<Transacao>
 
@@ -33,4 +32,7 @@ interface ApiService {
 
     @DELETE("transacoes/{id}")
     suspend fun deletarTransacao(@Path("id") id: Int): Response<Unit>
+
+    @POST("usuarios")
+    suspend fun criarUsuario(@Body novoUsuario: NovoUsuario): Response<Unit>
 }

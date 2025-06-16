@@ -1,16 +1,23 @@
+// Local: app/src/main/java/com/erico/minhasfinancasapp/ui/login/LoginScreen.kt
+
 package com.erico.minhasfinancasapp.ui.login
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
@@ -20,9 +27,11 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
     val loginSuccess by loginViewModel.loginSuccess.collectAsState()
+    val isLoading by loginViewModel.isLoading.collectAsState()
+    val errorMessage by loginViewModel.errorMessage.collectAsState()
 
-    // Este bloco observa a variável 'loginSuccess'.
-    // Quando ela se torna 'true', a navegação é executada.
+    var passwordVisible by remember { mutableStateOf(false) }
+
     if (loginSuccess) {
         LaunchedEffect(key1 = Unit) {
             navController.navigate("home") {
@@ -32,40 +41,106 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Login", style = androidx.compose.material3.MaterialTheme.typography.headlineMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { loginViewModel.email.value = it },
-            label = { Text("E-mail") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { loginViewModel.password.value = it }, // Corrigido aqui
-            label = { Text("Senha") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { loginViewModel.login() },
-            modifier = Modifier.fillMaxWidth()
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Entrar")
+            // 1. Ícone/Logo do App
+            Icon(
+                imageVector = Icons.Default.AttachMoney,
+                contentDescription = "Logo Finanças",
+                modifier = Modifier.size(100.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Minhas Finanças",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Text(
+                text = "Faça login para continuar",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // 2. Campo de E-mail
+            OutlinedTextField(
+                value = email,
+                onValueChange = { loginViewModel.email.value = it },
+                label = { Text("E-mail") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 3. Campo de Senha com Ícone de Visibilidade
+            OutlinedTextField(
+                value = password,
+                onValueChange = { loginViewModel.password.value = it },
+                label = { Text("Senha") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (passwordVisible)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, "Mostrar/Ocultar senha")
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 4. Exibição da Mensagem de Erro
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = Color.Red,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+
+            // 5. Botão de Login com Estado de Carregamento
+            Button(
+                onClick = { loginViewModel.login() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                enabled = !isLoading // Botão fica desabilitado enquanto carrega
+            )
+
+            {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Entrar")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            TextButton(onClick = { navController.navigate("register") }) {
+                Text("Não tem uma conta? Cadastre-se")
+            }
+
         }
+
     }
 }
