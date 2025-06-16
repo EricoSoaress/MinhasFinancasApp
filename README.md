@@ -24,11 +24,6 @@ Linguagem: Kotlin
 UI Toolkit: Jetpack Compose com Material 3
 Comunicação com API:Retrofit & OkHttp
 
-![login](https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023418_MinhasFinancasApp.jpg)
-![login](https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023334_MinhasFinancasApp.jpg)
-![login](https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023347_MinhasFinancasApp.jpg)
-![login](https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023356_MinhasFinancasApp.jpg)
-![login](https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023424_MinhasFinancasApp.jpg)
 <img src="https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023418_MinhasFinancasApp.jpg" alt="Texto Alternativo" width="270" height="585">
 <img src="https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023334_MinhasFinancasApp.jpg" alt="Texto Alternativo" width="270" height="585">
 <img src="https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023347_MinhasFinancasApp.jpg" alt="Texto Alternativo" width="270" height="585">
