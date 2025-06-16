@@ -4,8 +4,8 @@ Um sistema completo de gerenciamento de finanças pessoais, composto por uma API
 Este projeto foi desenvolvido para demonstrar habilidades full-stack, cobrindo desde a criação da API até a interface do usuário no Android.
 
 Funcionalidades do App Android:
-* **Autenticação de Usuário: Telas de Login e Cadastro e com validação.
-*Sessão Persistente: O usuário permanece logado, com "auto-login" ao reabrir o app.
+* Autenticação de Usuário: Telas de Login e Cadastro e com validação.
+* Sessão Persistente: O usuário permanece logado, com "auto-login" ao reabrir o app.
 *CRUD Completo de Transações: Crie, leia, atualize e delete suas receitas e despesas.
 *Dashboard: Tela inicial com saldo geral, lista de transações e filtros.
 *Filtragem e Ordenação: Filtre transações por tipo (Receita/Despesa) e veja sempre as mais recentes no topo.
