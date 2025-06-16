@@ -24,4 +24,4 @@ Linguagem: Kotlin
 UI Toolkit: Jetpack Compose com Material 3
 Comunicação com API:Retrofit & OkHttp
 
-
+https://github.com/EricoSoaress/imagens/blob/main/Screenshot_20250616_023418_MinhasFinancasApp.jpg
